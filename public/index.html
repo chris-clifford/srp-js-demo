@@ -35,44 +35,22 @@
       <div class="row">
         <div class="twelve column" style="margin-top: 10%">
 
-          <h1>SiRP Demo</h1>
-          <p><b>Secure (interoperable) Remote Password Authentication</b></p>
+          <h1>SRP m2m-web Demo</h1>
+          <p><b>Signup and Login Flow</b></p>
 
           <h3>About</h3>
 
-          <p>
-              This is a demo of the <a href="https://github.com/grempe/sirp">SiRP Ruby Gem</a>,
-              and the <a href="https://github.com/alax/jsrp">JSRP Javascript client</a>.
-              SiRP is an implementation of the
-              <a href="http://srp.stanford.edu/">Secure Remote Password (SRP-6a) protocol</a>.
-              The code for this demo can be found on at <a href="https://github.com/grempe/sirp-demo">grempe/sirp-demo</a>
-          </p>
-
-          <p>
-            SRP allows users to mutually authenticate with a server without ever
-            sending a password over the wire. Nearly 100% of websites today
-            use the less secure method of sending your password to the remote
-            server, hashing it, and then comparing it to a stored hash. SRP instead
-            uses cryptographic primitives to authenticate you and securely negotiate
-            a cryptographic key that you can use for encrypted session communications.
-          </p>
-
-          <p>
-              To use this demo, first register a username and password. Once
-              registered login using the same credentials to authenticate using SRP.
-          </p>
-
-          <h3>User Registration</h3>
+          <h3>Step 1: User Signup</h3>
 
           <p>
             In this step a new user is registered by generating a salt and verifier in
-            the browser and posting those attributes to the <code>/users</code> endoint on the server.
+            the browser and posting those attributes to the <code>/api/v8/signup</code> endoint on the server.
           </p>
 
           <form id='register'>
             <div class="row">
               <div class="six columns">
-                <label for="regUsername">username</label>
+                <label for="regUsername">email</label>
                 <input id='regUsername' class='u-full-width' type='text' name='username' autofocus><br>
               </div>
 
@@ -89,19 +67,46 @@
 
           <pre id='statusP0'></pre>
 
-          <h3>User Login</h3>
+          <h3>Step 2: Confirm Email</h3>
 
           <p>
-            In this step an existing user is requests an SRP protocol login. The first
+            In this step a new user confirms their email address by entering the pin
+            posting to the <code>/api/v8/confirm</code> endoint on the server.
+          </p>
+
+          <form id='confirm'>
+            <div class="row">
+              <div class="six columns">
+                <label for="confirmUsername">email</label>
+                <input id='confirmUsername' class='u-full-width' type='text' name='username' autofocus><br>
+              </div>
+
+              <div class="six columns">
+                <label for="confirmPin">pin</label>
+                <input id='confirmPin' class='u-full-width' type='password' name='password'>
+              </div>
+            </div>
+            <div class="row">
+              <h4 id='confirmMessage' class='nine columns green'></h4>
+              <input id='confirmButton' class='three columns button-primary u-pull-right' type='button' value='Confirm'>
+            </div>
+          </form>
+
+          <pre id='statusP1'></pre>
+
+          <h3>Step 3: User Login/Authentication</h3>
+
+          <p>
+            In this step an existing user requests an SRP protocol login <code>/api/v8/login</code>. The first
             step is to retrieve the user's 'salt' and the server's 'B' values from
             the server and use those to bootstrap the rest of the authentication
-            process.
+            process <code>/api/v8/validate_s</code>.
           </p>
 
           <form id='login'>
             <div class="row">
               <div class="six columns">
-                <label for="loginUsername">username</label>
+                <label for="loginUsername">email</label>
                 <input id='loginUsername' class='u-full-width' type='text' name='username' autofocus><br>
               </div>
 
@@ -116,12 +121,11 @@
             </div>
           </form>
 
-          <p>Enter something you wish you hadn't? <a href="/flush">flush</a> the database of all credentials!</p>
-
-          <pre id='statusP1'></pre>
-          <br/>
 
           <pre id='statusP2'></pre>
+          <br/>
+
+          <pre id='statusP3'></pre>
           <br/>
 
         </div>
@@ -134,6 +138,7 @@
     <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="node_modules/fast-sha256/sha256.min.js"></script>
     <script type="text/javascript" src="node_modules/scrypt-async/scrypt-async.min.js"></script>
+    <script type="text/javascript" src="node_modules/gibberish-aes/dist/gibberish-aes-1.0.0.min.js"></script>
     <script type="text/javascript" src="jsrp-browser.js"></script>
     <script type="text/javascript" src="app.js"></script>
 </body>
