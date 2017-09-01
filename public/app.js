@@ -30,7 +30,7 @@ function registerUser (username, password) {
       $('#statusP0').append('P0 : verifier : ' + result.verifier + '\n')
 
       $('#statusP0').append('P0 : POST username, salt, and verifier registration data to server\n')
-      $.post('http://localhost:3002/api/v8/signup', { email: username, salt: result.salt, verifier: result.verifier, password: password }, function (data) {
+      $.post('http://localhost:3002/api/v8/signup', { email: username, salt: result.salt, verifier: result.verifier }, function (data) {
         $('#regMessage').html('REGISTERED')
 
         $('#statusP0').append('P0 : Server returned user.username: ' + data.success + '\n')
@@ -83,7 +83,7 @@ function loginUser (username, password) {
     $('#statusP2').append('P2 : Sending username and A to server\n')
 
     $.post('http://localhost:3002/api/v8/login', { username: username, A: A }, function (data) {
-      $('#statusP2').append('P2 : Received challenge : ' + data.challenge.salt + '\n')
+      $('#statusP2').append('P2 : Received salt : ' + data.challenge.salt + '\n')
       client.setSalt(data.challenge.salt)
       $('#statusP2').append('P2 : Received B : ' + data.challenge.B + '\n')
       client.setServerPublicKey(data.challenge.B)
@@ -102,18 +102,25 @@ function loginUser (username, password) {
       var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
       var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
       var device_json = {device_id: device_id, imei: device_id, device_token: device_token, timestamp: date + " " + time + " " + "-0700" }
-      // var textBytes = aesjs.utils.utf8.toBytes(device_json)
-      // var aesCbc = new aesjs.ModeOfOperation.cbc(key);
-      // var encryptedBytes = aesCbc.encrypt(textBytes);
+
+      nacl_factory.instantiate(function (nacl) {
+        k = nacl.encode_utf8(client.getSharedKey())
+        m = nacl.encode_utf8(JSON.stringify(device_json))
+        n = nacl.crypto_secretbox_random_nonce()
+        c = nacl.crypto_secretbox(m, n, nacl.crypto_hash_sha256(k))
+        cipher_text = btoa(String.fromCharCode.apply(null, c))
+        nonce = btoa(String.fromCharCode.apply(null, n))
+        message = btoa(String.fromCharCode.apply(null, m));
+      });
 
       // Phase 2
       // Send : username and M
       // Receive : H_AMK
       // Confirm client and server H_AMK values match, use shared key K
-      //
+
       $('#statusP3').append('P3 : Sending username and client M to server\n')
 
-      $.post('http://localhost:3002/api/v8/validate_s', { username: username, s_hash: clientM, token: device_json }, function (data) {
+      $.post('http://localhost:3002/api/v8/validate_s', { username: username, s_hash: clientM, token: cipher_text, nonce: nonce }, function (data) {
         $('#statusP3').append('P3 : Received server H_AMK : ' + data.H_AMK + '\n')
 
         if (client.checkServerProof(data.H_AMK)) {

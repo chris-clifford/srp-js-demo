@@ -13,6 +13,8 @@
     "fast-sha256": "^1.0.0",
     "gibberish-aes": "^1.0.0",
     "jquery": "^3.1.0",
+    "js-nacl": "^1.2.2",
+    "libsodium": "^0.5.4",
     "scrypt-async": "^1.2.0"
   }
 }

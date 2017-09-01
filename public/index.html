@@ -139,6 +139,12 @@
     <script type="text/javascript" src="node_modules/fast-sha256/sha256.min.js"></script>
     <script type="text/javascript" src="node_modules/scrypt-async/scrypt-async.min.js"></script>
     <script type="text/javascript" src="node_modules/gibberish-aes/dist/gibberish-aes-1.0.0.min.js"></script>
+    <script type="text/javascript" src="node_modules/js-nacl/lib/nacl_factory.js"></script>
+    <script>
+      window.nacl = nacl_factory.instantiate(function (nacl) {
+        alert(nacl.to_hex(nacl.random_bytes(16)));
+      });
+    </script>
     <script type="text/javascript" src="jsrp-browser.js"></script>
     <script type="text/javascript" src="app.js"></script>
 </body>
